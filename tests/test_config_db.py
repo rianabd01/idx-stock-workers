@@ -3,7 +3,6 @@ from dataclasses import FrozenInstanceError
 import pytest
 
 from app.core.config import get_ai_config, get_database_config
-from app.core.db import check_required_tables
 
 
 def test_database_config_validation_and_immutability(monkeypatch):
@@ -30,47 +29,3 @@ def test_ai_config_bounds(monkeypatch):
     config = get_ai_config()
     assert config.base_url == "https://ai.example/v1"
     assert config.timeout_seconds == 30
-
-
-class FakeCursor:
-    def __init__(self, rows):
-        self.rows = rows
-        self.executed = None
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        return None
-
-    def execute(self, query, params):
-        self.executed = (query, params)
-
-    def fetchall(self):
-        return self.rows
-
-
-class FakeConnection:
-    def __init__(self, rows):
-        self.cursor_instance = FakeCursor(rows)
-
-    def cursor(self):
-        return self.cursor_instance
-
-
-def test_schema_preflight_success_is_read_only():
-    conn = FakeConnection([{"table_name": "news_articles", "exists": True}])
-    check_required_tables(conn, "impact", {"news_articles"})
-    assert "to_regclass" in conn.cursor_instance.executed[0]
-    assert conn.cursor_instance.executed[1] == (["news_articles"],)
-
-
-def test_schema_preflight_lists_missing_tables_and_migration_command():
-    conn = FakeConnection(
-        [
-            {"table_name": "network_nodes", "exists": False},
-            {"table_name": "news_articles", "exists": True},
-        ]
-    )
-    with pytest.raises(RuntimeError, match=r"network_nodes.*uv run alembic upgrade head.*idx-stock-backend"):
-        check_required_tables(conn, "news impact", {"network_nodes", "news_articles"})

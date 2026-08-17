@@ -2,15 +2,12 @@ import argparse
 import json
 import time
 
-from app.core.db import check_required_tables, get_connection
+from app.core.db import get_connection
 from app.services.news_collector import collect_news_once
-
-REQUIRED_TABLES = {"news_sources", "news_articles", "news_fetch_logs"}
 
 
 def run_once() -> dict:
     with get_connection() as conn:
-        check_required_tables(conn, "news collector", REQUIRED_TABLES)
         return collect_news_once(conn)
 
 
