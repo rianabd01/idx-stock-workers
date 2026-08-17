@@ -5,7 +5,7 @@
 __pycache__
 *.pyc
 .DS_Store
-# graphify-out
+graphify-out/
 # .trae
 # .rtk
 # AGENTS.md
