@@ -13,61 +13,6 @@ DEFAULT_SOURCES = [
 ]
 
 
-def ensure_news_schema(conn: Connection) -> None:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            create table if not exists news_sources (
-                id bigserial primary key,
-                name text not null,
-                base_url text not null,
-                feed_url text not null unique,
-                is_active boolean not null default true,
-                crawl_delay_seconds integer not null default 600,
-                last_fetched_at timestamptz,
-                last_status_code integer,
-                last_error text,
-                etag text,
-                last_modified text,
-                created_at timestamptz not null default now()
-            )
-            """
-        )
-        cur.execute(
-            """
-            create table if not exists news_articles (
-                id bigserial primary key,
-                source_id bigint not null references news_sources(id),
-                url text not null unique,
-                title text not null,
-                summary text,
-                published_at timestamptz,
-                content_hash text not null,
-                raw_payload jsonb not null default '{}',
-                scraped_at timestamptz not null default now(),
-                created_at timestamptz not null default now()
-            )
-            """
-        )
-        cur.execute(
-            """
-            create table if not exists news_fetch_logs (
-                id bigserial primary key,
-                source_id bigint references news_sources(id),
-                url text not null,
-                status_code integer,
-                duration_ms integer,
-                error text,
-                fetched_at timestamptz not null default now()
-            )
-            """
-        )
-        cur.execute(
-            "create index if not exists news_articles_published_idx on news_articles (published_at desc)"
-        )
-        cur.execute("create index if not exists news_articles_source_idx on news_articles (source_id)")
-
-
 def seed_default_sources(conn: Connection) -> None:
     with conn.cursor() as cur:
         for source in DEFAULT_SOURCES:

@@ -14,8 +14,28 @@ Prefer direct business impact, issuer mention, commodity impact, sector impact, 
 """
 
 
+def _shorten_profile(profile: str, max_chars: int = 700) -> str:
+    compact = " ".join(line.strip() for line in profile.splitlines() if line.strip())
+    if len(compact) <= max_chars:
+        return compact
+    return compact[:max_chars].rsplit(" ", 1)[0] + "..."
+
+
 def _compact_universe(companies: list[dict[str, Any]]) -> str:
-    return "\n".join(f"- {company['ticker']}: {company['name']}" for company in companies)
+    lines = []
+    for company in companies:
+        lines.append(f"- {company['ticker']}: {company['name']}")
+        if company.get("vault_sektor"):
+            lines.append(f"  Sektor: {company['vault_sektor']}")
+        if company.get("vault_subsektor"):
+            lines.append(f"  Subsektor: {company['vault_subsektor']}")
+        if company.get("vault_komoditas"):
+            lines.append(f"  Komoditas: {', '.join(company['vault_komoditas'])}")
+        if company.get("vault_tag"):
+            lines.append(f"  Tag: {', '.join(company['vault_tag'])}")
+        if company.get("vault_profile"):
+            lines.append(f"  Profil: {_shorten_profile(company['vault_profile'])}")
+    return "\n".join(lines)
 
 
 def _extract_json(content: str) -> dict[str, Any]:

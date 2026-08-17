@@ -1,168 +1,99 @@
 # IDX Stock Workers
 
-Repository terpisah untuk background workers IDX Stock. Worker tidak melayani request user; tugasnya mengumpulkan/memproses data lalu menulis hasil ke PostgreSQL. API backend membaca hasil matang dari DB.
+Repository background workers IDX Stock. Worker mengumpulkan/memproses data dan menulis hasil ke PostgreSQL; backend API membaca hasil matang dari DB.
 
-## Worker yang tersedia
+## Worker
 
-```text
-workers/news_collector_worker.py
-workers/news_impact_worker.py
-```
+- `workers/news_collector.py`: collector RSS publik, compliance-first.
+- `workers/news_impact.py`: klasifikasi dampak artikel ke ticker IDX dengan company vault.
 
-### News collector
-
-News collector saat ini RSS-first dan compliance-first:
-
-- seed source RSS publik ke `news_sources`.
-- cek `robots.txt` sebelum fetch feed.
-- pakai User-Agent transparan `IDXStockBot/1.0`.
-- rate limit per source via `crawl_delay_seconds`.
-- support `ETag` dan `Last-Modified`.
-- dedupe artikel dengan `unique(url)`.
-- simpan audit fetch ke `news_fetch_logs`.
-- tidak melakukan bypass anti-bot/CAPTCHA/proxy rotation.
+Collector memeriksa `robots.txt`, memakai User-Agent transparan, mendukung ETag/Last-Modified, deduplikasi URL, dan mencatat fetch. Worker tidak melakukan bypass anti-bot/CAPTCHA/proxy rotation.
 
 ## Struktur
 
 ```text
 app/
   core/
-    db.py                       PostgreSQL connection helper
+    config.py                    konfigurasi tervalidasi
+    db.py                        koneksi PostgreSQL dan schema preflight read-only
+  knowledge/
+    company_vault.py             loader dan enrichment company vault
   repositories/
-    news_repository.py           schema + write helpers news collector
-    impact_repository.py         schema + query/write helpers AI impact
+    news_repository.py           query/write news
+    impact_repository.py         query/write impact
   services/
-    news_collector.py            logic collect RSS, parse, dedupe, insert
-    impact_analyzer.py           OpenAI-compatible ticker impact classifier
+    news_collector.py            fetch dan normalisasi RSS
+    impact_analyzer.py           ticker impact classifier
 workers/
-  news_collector_worker.py       entrypoint collector worker
-  news_impact_worker.py          entrypoint AI impact worker
+  news_collector.py              entrypoint collector
+  news_impact.py                 entrypoint impact
 ```
 
-## Environment
+## Environment dan instalasi
 
-Copy `.env.example` ke `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Isi:
+Copy `.env.example` ke `.env`, lalu isi minimal:
 
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
-```
-
-## Install
-
-```bash
-uv sync
-```
-
-## Run sekali
-
-```bash
-uv run python -m workers.news_collector_worker --once
-```
-
-Contoh output:
-
-```json
-{"sources_checked": 1, "sources_skipped": 0, "articles_inserted": 0, "errors": []}
-```
-
-`articles_inserted` bisa `0` jika artikel sudah ada atau feed return `304 Not Modified`.
-
-## Run continuous local
-
-```bash
-uv run python -m workers.news_collector_worker --interval 600
-```
-
-## AI impact worker
-
-Worker ini membaca artikel yang belum dianalisis, mengambil universe emiten dari `network_nodes`, lalu memanggil OpenAI-compatible chat completions API.
-
-Jika artikel tidak relevan ke saham IDX, hasilnya disimpan sebagai:
-
-```json
-{
-  "affected_tickers": null,
-  "relevance": "not_relevant"
-}
-```
-
-Run tanpa memanggil AI untuk validasi DB/query flow:
-
-```bash
-uv run python -m workers.news_impact_worker --once --limit 2 --dry-run
-```
-
-Run dengan AI:
-
-```bash
-uv run python -m workers.news_impact_worker --once --limit 10
-```
-
-Continuous local:
-
-```bash
-uv run python -m workers.news_impact_worker --interval 600 --limit 10
-```
-
-Environment OpenAI-compatible:
-
-```env
-AI_API_KEY=your-openai-compatible-api-key
+AI_API_KEY=your-api-key
 AI_BASE_URL=https://api.openai.com/v1
 AI_MODEL=gpt-4o-mini
 AI_TIMEOUT_SECONDS=45
 ```
 
-`AI_BASE_URL` harus base URL `/v1`, karena worker memanggil:
+`AI_BASE_URL` adalah base URL `/v1`; worker memanggil `{AI_BASE_URL}/chat/completions`.
 
-```text
-{AI_BASE_URL}/chat/completions
+```bash
+uv sync --dev
 ```
 
-Untuk production nanti, jalankan via service manager seperti systemd. Jangan deploy dulu kalau masih fase eksplorasi local.
+## Menjalankan worker
+
+Collector satu siklus atau continuous:
+
+```bash
+uv run python -m workers.news_collector --once
+uv run python -m workers.news_collector --interval 600
+```
+
+Impact tanpa AI untuk validasi DB/query flow, dengan AI, atau continuous:
+
+```bash
+uv run python -m workers.news_impact --once --limit 2 --dry-run
+uv run python -m workers.news_impact --once --limit 10
+uv run python -m workers.news_impact --interval 600 --limit 10
+```
+
+Impact worker membaca artikel yang belum dianalisis, mengambil universe dari `network_nodes`, memperkayanya dari `company_vault/lq45`, lalu hanya menerima ticker yang ada dalam universe. Artikel tidak relevan disimpan dengan `affected_tickers: null`.
 
 ## Database contract
 
-Worker menulis ke table:
+Backend `idx-stock-backend` adalah satu-satunya pemilik schema dan migration. Workers tidak membuat atau mengubah schema. Sebelum tiap siklus, worker menjalankan preflight read-only sekali:
 
-```text
-news_sources
-news_articles
-news_fetch_logs
-article_impact_analysis
-```
+- collector: `news_sources`, `news_articles`, `news_fetch_logs`;
+- impact: `news_articles`, `article_impact_analysis`, `network_nodes`.
 
-Backend API membaca dari:
-
-```text
-news_articles
-news_sources
-```
-
-Boundary antar service adalah PostgreSQL, bukan import Python antar repo.
-
-## Smoke test
+Jika tabel belum tersedia, jalankan dari repository backend:
 
 ```bash
-uv run python -m py_compile app/core/db.py app/repositories/news_repository.py app/services/news_collector.py workers/news_collector_worker.py
-uv run python -m workers.news_collector_worker --once
+uv run alembic upgrade head
 ```
 
-Cek artikel:
+Boundary antar service adalah PostgreSQL, bukan import Python antar repository.
+
+## Verifikasi
 
 ```bash
-uv run python - <<'PY'
-from app.core.db import get_connection
-
-with get_connection() as conn:
-    with conn.cursor() as cur:
-        cur.execute('select count(*) as count from news_articles')
-        print(cur.fetchone()['count'])
-PY
+uv run python -m compileall -q app workers tests
+uv run pytest
+uv run python -m workers.news_collector --help
+uv run python -m workers.news_impact --help
 ```
+
+Smoke test DB tanpa panggilan AI:
+
+```bash
+uv run python -m workers.news_impact --once --limit 2 --dry-run
+```
+
+Collector `--once` melakukan akses network ke source RSS; jalankan hanya saat network fetch memang diinginkan.
