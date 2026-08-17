@@ -3,32 +3,6 @@ from typing import Any
 from psycopg import Connection
 
 
-def ensure_impact_schema(conn: Connection) -> None:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            create table if not exists article_impact_analysis (
-                id bigserial primary key,
-                article_id bigint not null references news_articles(id) on delete cascade,
-                affected_tickers text[],
-                relevance text not null check (relevance in ('relevant', 'not_relevant')),
-                confidence numeric not null default 0,
-                reasoning text,
-                model_name text not null,
-                raw_response jsonb not null default '{}',
-                analyzed_at timestamptz not null default now(),
-                unique (article_id, model_name)
-            )
-            """
-        )
-        cur.execute(
-            "create index if not exists article_impact_analysis_article_idx on article_impact_analysis (article_id)"
-        )
-        cur.execute(
-            "create index if not exists article_impact_analysis_tickers_idx on article_impact_analysis using gin (affected_tickers)"
-        )
-
-
 def company_universe(conn: Connection, limit: int = 1200) -> list[dict[str, Any]]:
     with conn.cursor() as cur:
         cur.execute(

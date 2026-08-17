@@ -10,7 +10,6 @@ import httpx
 
 from app.repositories.news_repository import (
     active_sources,
-    ensure_news_schema,
     insert_article,
     log_fetch,
     mark_source_result,
@@ -79,7 +78,6 @@ def _article_from_entry(source_id: int, entry: Any) -> dict[str, Any] | None:
 
 
 def collect_news_once(conn) -> dict[str, Any]:
-    ensure_news_schema(conn)
     seed_default_sources(conn)
 
     summary = {

@@ -1,10 +1,12 @@
 .env
+.env.*
+!.env.example
 .venv
 __pycache__
 *.pyc
 .DS_Store
-graphify-out
-.trae
-.rtk
-AGENTS.md
-CLAUDE.md
+# graphify-out
+# .trae
+# .rtk
+# AGENTS.md
+# CLAUDE.md
