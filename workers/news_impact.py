@@ -3,7 +3,7 @@ import json
 import time
 
 from app.core.config import get_ai_config
-from app.core.db import check_required_tables, get_connection
+from app.core.db import get_connection
 from app.knowledge.company_vault import enrich_companies_with_vault
 from app.repositories.impact_repository import (
     company_universe,
@@ -12,15 +12,11 @@ from app.repositories.impact_repository import (
 )
 from app.services.impact_analyzer import analyze_article_impact
 
-REQUIRED_TABLES = {"news_articles", "article_impact_analysis", "network_nodes"}
-
-
 def run_once(limit: int, dry_run: bool = False) -> dict:
     config = None if dry_run else get_ai_config()
     model_name = "dry-run" if dry_run else config.model
 
     with get_connection() as conn:
-        check_required_tables(conn, "news impact", REQUIRED_TABLES)
         companies = enrich_companies_with_vault(company_universe(conn))
         articles = pending_articles(conn, model_name, limit)
 
