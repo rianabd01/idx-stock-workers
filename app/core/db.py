@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from typing import Iterator
 
 import psycopg
+from psycopg import Connection
 from psycopg.rows import dict_row
 
 from app.core.config import get_database_config

@@ -18,6 +18,11 @@ class AIConfig:
     model: str
     timeout_seconds: int = 45
 
+@dataclass(frozen=True)
+class JinaConfig:
+    api_key: str
+    base_url: str
+    timeout_seconds: int = 45
 
 def _required_env(name: str) -> str:
     value = os.getenv(name, "").strip()
@@ -59,3 +64,15 @@ def get_ai_config() -> AIConfig:
         model=model,
         timeout_seconds=_bounded_int_env("AI_TIMEOUT_SECONDS", 45, 1, 300),
     )
+    
+def get_jina_config() -> JinaConfig:
+    api_key = os.getenv("JINA_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError("JINA_API_KEY is required")
+    return JinaConfig(
+        api_key=api_key,
+        base_url=_required_env("JINA_BASE_URL"),
+        timeout_seconds=_bounded_int_env("JINA_TIMEOUT_SECONDS", 45, 1, 300),
+    )
+
+

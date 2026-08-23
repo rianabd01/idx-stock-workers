@@ -1,34 +1,6 @@
-from datetime import datetime, timezone
 from typing import Any
 
 from psycopg import Connection
-
-DEFAULT_SOURCES = [
-    {
-        "name": "Antara Market",
-        "base_url": "https://www.antaranews.com",
-        "feed_url": "https://www.antaranews.com/rss/ekonomi.xml",
-        "crawl_delay_seconds": 600,
-    },
-]
-
-
-def seed_default_sources(conn: Connection) -> None:
-    with conn.cursor() as cur:
-        for source in DEFAULT_SOURCES:
-            cur.execute(
-                """
-                insert into news_sources (name, base_url, feed_url, crawl_delay_seconds)
-                values (%s, %s, %s, %s)
-                on conflict (feed_url) do nothing
-                """,
-                (
-                    source["name"],
-                    source["base_url"],
-                    source["feed_url"],
-                    source["crawl_delay_seconds"],
-                ),
-            )
 
 
 def active_sources(conn: Connection) -> list[dict[str, Any]]:
@@ -72,13 +44,19 @@ def mark_source_result(
 
 
 def insert_article(conn: Connection, article: dict[str, Any]) -> bool:
+    content_confidence = 1.0 if article.get("content") else (0.5 if article.get("summary") else 0)
     with conn.cursor() as cur:
         cur.execute(
             """
             insert into news_articles
-                (source_id, url, title, summary, published_at, content_hash, raw_payload)
-            values (%s, %s, %s, %s, %s, %s, %s::jsonb)
-            on conflict (url) do nothing
+                (source_id, url, title, summary, published_at, content_hash, raw_payload, content, content_confidence)
+            values (%s, %s, %s, %s, %s, %s, %s::jsonb, %s, %s)
+            on conflict (url) do update set
+                content = coalesce(news_articles.content, excluded.content),
+                content_confidence = case
+                    when news_articles.content is not null then news_articles.content_confidence
+                    else excluded.content_confidence
+                end
             returning id
             """,
             (
@@ -89,6 +67,8 @@ def insert_article(conn: Connection, article: dict[str, Any]) -> bool:
                 article.get("published_at"),
                 article["content_hash"],
                 article["raw_payload"],
+                article.get("content"),
+                content_confidence,
             ),
         )
         return cur.fetchone() is not None
@@ -112,7 +92,23 @@ def log_fetch(
         )
 
 
-def parsed_datetime(value: Any) -> datetime | None:
-    if not value:
-        return None
-    return datetime(*value[:6], tzinfo=timezone.utc)
+def save_article_content(
+    conn: Connection,
+    article_id: int,
+    content: str,
+    confidence: float = 1.0,
+    published_at: Any = None,
+    summary: str | None = None,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            update news_articles
+            set content = %s,
+                content_confidence = %s,
+                published_at = coalesce(published_at, %s),
+                summary = coalesce(summary, %s)
+            where id = %s and content is null
+            """,
+            (content, confidence, published_at, summary, article_id),
+        )
