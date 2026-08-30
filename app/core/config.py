@@ -24,6 +24,11 @@ class JinaConfig:
     base_url: str
     timeout_seconds: int = 45
 
+@dataclass(frozen=True)
+class EmbeddingConfig:
+    model: str
+    batch_size: int = 16
+
 def _required_env(name: str) -> str:
     value = os.getenv(name, "").strip()
     if not value:
@@ -73,6 +78,15 @@ def get_jina_config() -> JinaConfig:
         api_key=api_key,
         base_url=_required_env("JINA_BASE_URL"),
         timeout_seconds=_bounded_int_env("JINA_TIMEOUT_SECONDS", 45, 1, 300),
+    )
+
+def get_embedding_config() -> EmbeddingConfig:
+    model = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-base").strip()
+    if not model:
+        raise RuntimeError("EMBEDDING_MODEL is required")
+    return EmbeddingConfig(
+        model=model,
+        batch_size=_bounded_int_env("EMBEDDING_BATCH_SIZE", 16, 1, 256),
     )
 
 
