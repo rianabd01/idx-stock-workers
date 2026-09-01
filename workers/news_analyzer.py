@@ -46,6 +46,15 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
                 fetched = fetch_article_content(jina_config, row["url"], target_selector=row.get("target_selector"))
                 if not fetched:
                     result["errors"].append({"article_id": row["id"], "error": "jina_fetch_failed"})
+                    save_article_content(
+                        conn,
+                        row["id"],
+                        content="",
+                        confidence=0.0,
+                        published_at=None,
+                        summary=None,
+                    )
+                    conn.commit()
                     continue
 
                 summary = summarize_article(config, row["title"], fetched["content"])
@@ -62,8 +71,13 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
                 result["summarized"] += 1 if summary else 0
                 print(f"ok {row['id']}: {summary[:90]}", flush=True)
             except Exception as exc:
-                conn.rollback()
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
                 result["errors"].append({"article_id": row["id"], "error": str(exc)[:300]})
+                if "connection" in str(exc).lower() or "shutdown" in str(exc).lower():
+                    break
             time.sleep(sleep_seconds)
 
         return result
@@ -77,18 +91,31 @@ def main() -> None:
         "--interval",
         type=int,
         default=600,
-        help="Seconds between cycles when running continuously.",
+        help="Seconds between cycles when running continuously and queue is empty.",
     )
     args = parser.parse_args()
 
     while True:
-        summary = run_once(args.limit)
-        print(json.dumps(summary, ensure_ascii=False), flush=True)
+        try:
+            summary = run_once(args.limit)
+            print(json.dumps(summary, ensure_ascii=False), flush=True)
 
-        if args.once:
-            break
-        time.sleep(args.interval)
+            if args.once:
+                break
+
+            # If there were articles processed, immediately process the next batch; otherwise wait for interval.
+            if summary.get("articles_checked", 0) > 0:
+                time.sleep(1)
+            else:
+                time.sleep(args.interval)
+        except Exception as err:
+            print(f"[ERROR] news_analyzer error: {err}. Retrying in 5 seconds...", flush=True)
+            if args.once:
+                break
+            time.sleep(5)
 
 
 if __name__ == "__main__":
     main()
+
+
