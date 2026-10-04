@@ -579,3 +579,12 @@ Metode: homepage + halaman profil/hubungan-investor situs resmi tiap emiten di-f
 - Status IR: situs resmi LIVE, data keuangan, dividen, dan presentasi investor sangat transparan.
 - Snapshot 2026-10-04: kapitalisasi ±Rp2,08 triliun.
 
+## TECH — Indosterling Technomedia Tbk
+- Fakta struktural: didirikan 19 Januari 2011; IPO 4 Juni 2020 (papan pengembangan); pengendali PT Indosterling Sarana Investa (75,81%), publik (24,15%).
+- Klasifikasi: IDX IC Teknologi / Perangkat Lunak & Jasa TI; platform SaaS Edufecta, LOKAmedia, media digital (Pingpoint, Duitologi, Karirigogo), dan platform operasional (StockMap, Sentinel).
+- Emiten sejenis: AREA, ATIC, CYBR, DCII, DMMX, ELIT, ENVY, LMAS, MLPT.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TECH (diakses 2026-10-04); situs resmi indosterlingtechnomedia.com.
+- Status IR: situs resmi LIVE, laporan keuangan dan prospektus tersedia.
+- Snapshot 2026-10-04: kapitalisasi ±Rp62,82 miliar.
+
+
