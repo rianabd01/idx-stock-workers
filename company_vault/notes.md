@@ -498,3 +498,84 @@ Metode: homepage + halaman profil/hubungan-investor situs resmi tiap emiten di-f
 - Sumber: lembarsaham.com/fundamental-saham/emiten/TRST (diakses 2026-08-28); situs trias-sentosa.com.
 - Status IR: homepage dianalisis (bagian "Our Company") — IR parsial.
 - Snapshot 2026-08-28: kapitalisasi ±Rp1,30 triliun.
+
+## TRIN — Perintis Triniti Properti Tbk
+- Fakta struktural: didirikan 2012; IPO 15 Januari 2020 (papan utama); pengendali PT Kunci Daud Indonesia (40,96%), PT Intan Investama (33,51%), publik (25,53%).
+- Klasifikasi: IDX IC Properti & Real Estat / Pengembang & Operator Real Estat; proyek: Brooklyn, Springwood Residence, Yukata Suites, The Smith, Collins Boulevard.
+- Emiten sejenis: APLN, ASRI, BSDE, CTRA, LPQR, PWON, SMRA, TRUE.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TRIN (diakses 2026-10-04); situs trinitiland.com.
+- Status IR: situs resmi LIVE, informasi proyek dan laporan keuangan tersedia.
+- Snapshot 2026-10-04: kapitalisasi ±Rp1,12 triliun.
+
+## TRIM — Trimegah Sekuritas Indonesia Tbk
+- Fakta struktural: didirikan 9 Mei 1990; IPO 31 Januari 2000 (papan utama); pengendali Garibaldi Thohir (34,64%), Philmon Samuel Tanuri (9,73%), PT Union Sampoerna (8,30%), publik (47,33%).
+- Klasifikasi: IDX IC Keuangan / Jasa Investasi; anak usaha PT Trimegah Asset Management (99,9%).
+- Emiten sejenis: PADI, PANS, RELI, YULE.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TRIM (diakses 2026-10-04); situs resmi trimegah.com.
+- Status IR: situs resmi LIVE, laporan keuangan dan keterbukaan informasi lengkap.
+- Snapshot 2026-10-04: kapitalisasi ±Rp5,65 triliun.
+
+## TRIL — Triwira Insanlestari Tbk
+- Fakta struktural: didirikan 26 Oktober 1992; IPO 28 Januari 2008 (papan pengembangan); pengendali PT Arthabuana Karya Mandiri (57,54%), PT Hengtraco Protecsindo (14,43%), publik (28,03%).
+- Klasifikasi: IDX IC Perindustrian / Jasa Perindustrian; perdagangan aneka barang perindustrian, peralatan teknik, dan safety gear.
+- Emiten sejenis: BACH, NAIK, TIRA.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TRIL (diakses 2026-10-04); situs resmi triwirainsanlestari.com.
+- Status IR: situs resmi LIVE, informasi korporasi terbatas.
+- Snapshot 2026-10-04: kapitalisasi ±Rp60,00 miliar.
+
+## TRGU — Cerestar Indonesia Tbk
+- Fakta struktural: didirikan 10 Agustus 2020; IPO 8 Juli 2022 (papan pengembangan); pengendali PT Sunvalle Berkat Mandiri (79,93%), publik (20,07%).
+- Klasifikasi: IDX IC Barang Konsumen Primer / Makanan & Minuman; produsen tepung terigu (Falcon, Seagull) dan pakan ternak (Starfish).
+- Emiten sejenis: AISA, CEKA, INDF, ICBP, MYOR, ROTI.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TRGU (diakses 2026-10-04); situs resmi cerestar.co.id.
+- Status IR: situs resmi LIVE, laporan tahunan dan paparan publik tersedia.
+- Snapshot 2026-10-04: kapitalisasi ±Rp1,75 triliun.
+
+## TRAM — Trada Alam Minera Tbk
+- Fakta struktural: didirikan 6 Agustus 2004; IPO 10 September 2008 (papan pengembangan); pemegang saham publik dominan dengan konsesi batu bara dan armada FSO/tanker.
+- Klasifikasi: IDX IC Energi / Minyak, Gas & Batu Bara; jasa pelayaran FSO/tanker/bulk carrier dan pertambangan batu bara.
+- Emiten sejenis: BUMI, DOID, INDY, LEAD, MBSS, PTIS.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TRAM (diakses 2026-10-04); situs resmi trada.co.id.
+- Status IR: status perdagangan suspensi bursa.
+- Snapshot 2026-10-04: kapitalisasi ±Rp2,48 triliun.
+
+## TPMA — Trans Power Marine Tbk
+- Fakta struktural: didirikan 24 Januari 2005; IPO 20 Februari 2013 (papan pengembangan); pengendali PT Dwitunggal Perkasa Mandiri (57,74%), PT Ascend Bangun Persada (15,82%), Standard Chartered Bank Clients (6,79%), publik (19,65%).
+- Klasifikasi: IDX IC Energi / Distribusi Batu Bara & Mineral; transportasi laut curah kering (tongkang, tugboat, crane barge).
+- Emiten sejenis: BBRM, BESS, BSML, CANI, HAIS, MBSS, PSSI, RIGS, TCPI.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TPMA (diakses 2026-10-04); situs resmi transpowermarine.com.
+- Status IR: situs resmi LIVE, laporan keuangan dan materi presentasi investor lengkap.
+- Snapshot 2026-10-04: kapitalisasi ±Rp1,57 triliun.
+
+## TPIA — Chandra Asri Pacific Tbk
+- Fakta struktural: didirikan 2 November 1984; IPO 26 Mei 2008 (papan utama); pengendali PT Barito Pacific Tbk (34,63%), SCG Chemicals Public Company Ltd (30,57%), PT Top Investment Indonesia (15,00%), Prajogo Pangestu (7,78%), publik (8,10%).
+- Klasifikasi: IDX IC Barang Baku / Barang Kimia Dasar; produsen petrokimia terintegrasi (Olefins, Polyolefins Asrene & Trilene, Styrene Monomer).
+- Emiten sejenis: AGII, BMSR, BRPT, ESSA, LTLS, SRSN, UNIC.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TPIA (diakses 2026-10-04); situs resmi chandra-asri.com.
+- Status IR: situs resmi LIVE, halaman IR sangat lengkap dengan laporan kuartalan dan presentasi investor.
+- Snapshot 2026-10-04: kapitalisasi ±Rp150,10 triliun.
+
+## TOYS — Sunindo Adipersada Tbk
+- Fakta struktural: didirikan 8 Maret 1991; IPO 6 Agustus 2020 (papan pengembangan); pemegang saham PT Hoekel Bangun Abadi (30,48%), Iwan Tirtha (28,86%), Peter Indra Lembong (5,28%), Goichi Mori (5,28%), publik (30,10%).
+- Klasifikasi: IDX IC Barang Konsumen Non-Primer / Peralatan Olah Raga & Barang Hobi; manufaktur mainan boneka OEM dan merek sendiri Ozco (90% ekspor).
+- Emiten sejenis: BIKE, IIKP, UNTD.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TOYS (diakses 2026-10-04); situs resmi sunindo.id.
+- Status IR: situs resmi LIVE, laporan keuangan dan prospektus tersedia.
+- Snapshot 2026-10-04: kapitalisasi ±Rp11,48 miliar.
+
+## TOTO — Surya Toto Indonesia Tbk
+- Fakta struktural: didirikan 11 Juli 1977; IPO 30 Oktober 1990 (papan utama); pengendali Toto Limited Jepang (37,90%), PT Multifortuna Asindo (29,51%), PT Suryaparamitra Abadi (25,05%), publik (7,54%).
+- Klasifikasi: IDX IC Perindustrian / Produk & Perlengkapan Bangunan; produsen sanitary ware keramik, fitting kran/shower, dan kitchen systems merek TOTO.
+- Emiten sejenis: AMFG, ARNA, CAKK, IMPC, KIAS, MLIA, PIPA.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TOTO (diakses 2026-10-04); situs resmi toto.co.id.
+- Status IR: situs resmi LIVE, annual report dan keterbukaan informasi teratur.
+- Snapshot 2026-10-04: kapitalisasi ±Rp2,50 triliun.
+
+## TOTL — Total Bangun Persada Tbk
+- Fakta struktural: didirikan 4 September 1970; IPO 25 Juli 2006 (papan utama); pengendali PT Total Mandiri Persada (56,50%), publik (43,50%).
+- Klasifikasi: IDX IC Infrastruktur / Konstruksi Bangunan; kontraktor spesialis gedung bertingkat tinggi (high-rise building) premium untuk klien pengembang swasta.
+- Emiten sejenis: ACST, ADHI, DGIK, NRCA, PTPP, SSIA, WEGE, WIKA, WSKT.
+- Sumber: lembarsaham.com/fundamental-saham/emiten/TOTL (diakses 2026-10-04); situs resmi totalbp.com.
+- Status IR: situs resmi LIVE, data keuangan, dividen, dan presentasi investor sangat transparan.
+- Snapshot 2026-10-04: kapitalisasi ±Rp2,08 triliun.
+
