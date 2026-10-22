@@ -112,3 +112,18 @@ def save_article_content(
             """,
             (content, confidence, published_at, summary, article_id),
         )
+
+def save_article_summary(
+    conn: Connection,
+    article_id: int,
+    summary: str,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            update news_articles
+            set summary = %s
+            where id = %s
+            """,
+            (summary, article_id),
+        )

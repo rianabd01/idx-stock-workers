@@ -8,13 +8,23 @@ services:
     env_file: .env
     command: ["python", "-m", "workers.news_collector", "--interval", "300"]
 
+  # Fetch konten artikel via article_reader (murni Python, tanpa AI, super cepat & tanpa rate limit)
   news-analyzer:
     build: .
     container_name: worker-news-analyzer
     restart: unless-stopped
     env_file: .env
-    command: ["python", "-m", "workers.news_analyzer", "--limit", "10", "--interval", "60"]
+    command: ["python", "-m", "workers.news_analyzer", "--limit", "20", "--interval", "30"]
 
+  # Generate ringkasan artikel bahasa Indonesia via AI
+  news-summarizer:
+    build: .
+    container_name: worker-news-summarizer
+    restart: unless-stopped
+    env_file: .env
+    command: ["python", "-m", "workers.news_summarizer", "--limit", "5", "--interval", "60"]
+
+  # Analisis Sentimen & Dampak Emiten (Bullish/Bearish)
   news-impact:
     build: .
     container_name: worker-news-impact
