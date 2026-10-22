@@ -1,0 +1,46 @@
+services:
+  # --- Pipeline Berita (Berjalan terus-menerus di background) ---
+
+  news-collector:
+    build: .
+    container_name: worker-news-collector
+    restart: unless-stopped
+    env_file: .env
+    command: ["python", "-m", "workers.news_collector", "--interval", "300"]
+
+  news-analyzer:
+    build: .
+    container_name: worker-news-analyzer
+    restart: unless-stopped
+    env_file: .env
+    command: ["python", "-m", "workers.news_analyzer", "--limit", "10", "--interval", "60"]
+
+  news-impact:
+    build: .
+    container_name: worker-news-impact
+    restart: unless-stopped
+    env_file: .env
+    command: ["python", "-m", "workers.news_impact", "--limit", "10", "--interval", "120"]
+
+  # --- Pipeline Knowledge Vault (Dijalankan manual saat data vault diupdate) ---
+
+  vault-enrich:
+    build: .
+    container_name: worker-vault-enrich
+    profiles: ["manual"]
+    env_file: .env
+    command: ["python", "-m", "workers.vault_enrich"]
+
+  vault-indexer:
+    build: .
+    container_name: worker-vault-indexer
+    profiles: ["manual"]
+    env_file: .env
+    command: ["python", "-m", "workers.vault_indexer"]
+
+  profile-embeddings:
+    build: .
+    container_name: worker-profile-embeddings
+    profiles: ["manual"]
+    env_file: .env
+    command: ["python", "-m", "workers.profile_embeddings"]
