@@ -1,4 +1,4 @@
-"""Analyzer worker: fetch article content via Jina, then summarize with the AI model.
+"""Analyzer worker: fetch article content via article_reader, then summarize with the AI model.
 
 Pipeline: news_sources.sitemap_url --(collector)--> news_articles (title/url)
           --(analyzer)--> content + summary + published_at + confidence.
@@ -8,22 +8,22 @@ import argparse
 import json
 import time
 
-from app.core.config import get_ai_config, get_jina_config
+from app.core.config import get_ai_config
 from app.core.db import get_connection
 from app.repositories.news_repository import save_article_content
-from app.services.news_analyzer import fetch_article_content, summarize_article
+from app.services.article_reader import FetchBlocked, fetch_article_content
+from app.services.news_analyzer import summarize_article
 from app.services.news_collector import parse_datetime_raw
 
 
 def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
     config = get_ai_config()
-    jina_config = get_jina_config()
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                select a.id, a.title, a.url, s.target_selector
+                select a.id, a.title, a.url
                 from news_articles a
                 join news_sources s on s.id = a.source_id
                 where a.content is null
@@ -43,9 +43,14 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
 
         for row in articles:
             try:
-                fetched = fetch_article_content(jina_config, row["url"], target_selector=row.get("target_selector"))
+                try:
+                    fetched = fetch_article_content(row["url"])
+                except FetchBlocked as exc:
+                    # Gagal sementara: content tetap null supaya dicoba lagi siklus berikutnya.
+                    result["errors"].append({"article_id": row["id"], "error": str(exc)[:300]})
+                    continue
                 if not fetched:
-                    result["errors"].append({"article_id": row["id"], "error": "jina_fetch_failed"})
+                    result["errors"].append({"article_id": row["id"], "error": "fetch_failed"})
                     save_article_content(
                         conn,
                         row["id"],
@@ -75,8 +80,13 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
                     conn.rollback()
                 except Exception:
                     pass
+                err_str = str(exc).lower()
                 result["errors"].append({"article_id": row["id"], "error": str(exc)[:300]})
-                if "connection" in str(exc).lower() or "shutdown" in str(exc).lower():
+                if "429" in err_str:
+                    print(f"[WARN] AI rate limited (429). Sleeping 30 seconds before stopping batch...", flush=True)
+                    time.sleep(30)
+                    break
+                if "connection" in err_str or "shutdown" in err_str:
                     break
             time.sleep(sleep_seconds)
 
@@ -104,7 +114,8 @@ def main() -> None:
                 break
 
             # If there were articles processed, immediately process the next batch; otherwise wait for interval.
-            if summary.get("articles_checked", 0) > 0:
+            # contents_fetched (bukan articles_checked) supaya host yang di-cooldown tidak bikin loop 1 detik tanpa henti.
+            if summary.get("contents_fetched", 0) > 0:
                 time.sleep(1)
             else:
                 time.sleep(args.interval)

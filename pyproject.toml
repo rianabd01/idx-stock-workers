@@ -8,6 +8,7 @@ dependencies = [
     "psycopg[binary]>=3.3.4",
     "python-dotenv>=1.2.2",
     "sentence-transformers>=6.0.0",
+    "trafilatura>=2.2.0",
 ]
 
 [dependency-groups]

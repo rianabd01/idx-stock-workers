@@ -2,7 +2,7 @@
 
 Alur per emiten:
   1. Cari sumber referensi via Jina Search API (s.jina.ai).
-  2. Fetch konten terbaik via Jina Reader.
+  2. Fetch konten terbaik via article_reader (self-hosted).
   3. AI susun profil terstruktur sesuai section vault.
   4. Tulis ulang file Markdown (frontmatter lama dipertahankan, sektor diisi).
 """
@@ -91,13 +91,17 @@ def search_company_sources(jina_config: JinaConfig, ticker: str, name: str) -> l
     return results[:MAX_SEARCH_RESULTS]
 
 
-def gather_source_material(jina_config: JinaConfig, urls: list[str]) -> str:
-    """Fetch beberapa kandidat URL via Jina, gabungkan jadi bahan sumber."""
-    from app.services.news_analyzer import clean_markdown, fetch_article_content
+def gather_source_material(urls: list[str]) -> str:
+    """Fetch beberapa kandidat URL via article_reader, gabungkan jadi bahan sumber."""
+    from app.services.article_reader import FetchBlocked, fetch_article_content
+    from app.services.news_analyzer import clean_markdown
 
     parts: list[str] = []
     for url in urls[:3]:
-        fetched = fetch_article_content(jina_config, url)
+        try:
+            fetched = fetch_article_content(url)
+        except FetchBlocked:
+            continue
         if not fetched or not fetched.get("content"):
             continue
         text = clean_markdown(fetched["content"])[:MAX_SOURCE_CHARS]
@@ -231,7 +235,7 @@ def enrich_vault_file(
     sources = search_company_sources(jina_config, ticker, name)
     if not sources:
         return EnrichResult(ticker, False, "tidak ada hasil pencarian")
-    material = gather_source_material(jina_config, [s["url"] for s in sources])
+    material = gather_source_material([s["url"] for s in sources])
     if not material.strip():
         return EnrichResult(ticker, False, "gagal fetch semua sumber")
 

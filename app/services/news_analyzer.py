@@ -1,68 +1,11 @@
-"""Analyzer service: fetch artikel via Jina Reader + ringkas dengan AI model."""
+"""Analyzer service: ringkas artikel dengan AI model (fetch ada di article_reader)."""
 
 import json
 import re
-from typing import Any
 
 from curl_cffi import requests as curl_requests
 
-from app.core.config import AIConfig, JinaConfig
-
-# --- Jina Reader ---------------------------------------------------------
-
-MAX_CONTENT_CHARS = 20_000
-
-
-def _extract_payload(data: dict[str, Any], max_chars: int = MAX_CONTENT_CHARS) -> dict[str, Any] | None:
-    content = (data.get("content") or "").strip()
-    if not content:
-        return None
-    return {
-        "title": (data.get("title") or "").strip() or None,
-        "content": content[:max_chars],
-        "published_time": (data.get("publishedTime") or "").strip() or None,
-        "description": (data.get("description") or "").strip() or None,
-    }
-
-
-def parse_jina_response(payload: dict[str, Any], max_chars: int = MAX_CONTENT_CHARS) -> dict[str, Any] | None:
-    """Extract title/content/publishedTime from a Jina Reader JSON response."""
-    data = payload.get("data")
-    if not isinstance(data, dict):
-        return None
-    return _extract_payload(data, max_chars=max_chars)
-
-
-def fetch_article_content(
-    config: JinaConfig,
-    url: str,
-    target_selector: str | None = None,
-) -> dict[str, Any] | None:
-    """Fetch article via Jina Reader and return {title, content, published_time}.
-
-    Returns None on failure. target_selector narrows extraction to a CSS block.
-    """
-    headers = {
-        "Authorization": f"Bearer {config.api_key}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-    }
-    body: dict[str, Any] = {"url": url}
-    if target_selector:
-        body["targetSelector"] = target_selector
-
-    try:
-        response = curl_requests.post(
-            f"{config.base_url.rstrip('/')}/",
-            json=body,
-            headers=headers,
-            timeout=config.timeout_seconds,
-        )
-        response.raise_for_status()
-        return parse_jina_response(response.json())
-    except Exception:
-        return None
-
+from app.core.config import AIConfig
 
 # --- AI summarization -----------------------------------------------------
 
@@ -73,7 +16,7 @@ PROMPT_CONTENT_MAX_CHARS = 4000
 
 
 def clean_markdown(text: str) -> str:
-    """Bersihkan markdown Jina (gambar/link/format) jadi teks polos."""
+    """Bersihkan markdown (gambar/link/format) jadi teks polos."""
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)  # gambar
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)  # link → teksnya
     text = re.sub(r"[#>*_`]+", " ", text)

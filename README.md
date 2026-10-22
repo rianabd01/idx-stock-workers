@@ -11,7 +11,7 @@ Semua worker menulis data matang ke database PostgreSQL (`idx2`), yang kemudian 
 | Worker | Entrypoint | Deskripsi & Pipeline |
 | :--- | :--- | :--- |
 | **News Collector** | `workers/news_collector.py` | Membaca konfigurasi sumber di `news_sources`, scraping sitemap XML (XPath dinamis), dan mencatat artikel baru ke `news_articles`. Mendukung filter `--source-id`. |
-| **News Analyzer** | `workers/news_analyzer.py` | Mengambil artikel dengan `content is null`, fetch teks bersih via Jina Reader (`target_selector`), meringkas via AI model (`AI_MODEL`), serta memperbarui `summary`, `published_at`, dan `content_confidence`. Dilengkapi *auto-reconnect & queue draining*. |
+| **News Analyzer** | `workers/news_analyzer.py` | Mengambil artikel dengan `content is null`, fetch teks bersih via reader self-hosted `app/services/article_reader.py` (curl_cffi + trafilatura, throttle per host, robots.txt, cooldown saat diblokir), meringkas via AI model (`AI_MODEL`), serta memperbarui `summary`, `published_at`, dan `content_confidence`. Dilengkapi *auto-reconnect & queue draining*. |
 | **News Impact** | `workers/news_impact.py` | Menganalisis dampak sentimen (*bullish / bearish / neutral*), skor confidence, dan memetakan keterkaitan artikel terhadap emiten (`article_impact_tickers`). |
 | **Vault Indexer** | `workers/vault_indexer.py` | Mengindeks Markdown profil perusahaan/emiten dari knowledge vault ke dalam tabel `company_profiles` dan `company_profile_chunks`. |
 | **Profile Embeddings** | `workers/profile_embeddings.py` | Menghasilkan vector embeddings untuk setiap chunk profil emiten untuk semantic search. |
@@ -59,9 +59,9 @@ AI_BASE_URL=http://localhost:20128/v1
 AI_MODEL=scrape
 AI_TIMEOUT_SECONDS=45
 
-# Jina Reader (Article Fetcher)
+# Jina Search (hanya untuk vault_enrich; news analyzer tidak butuh Jina)
 JINA_API_KEY=your-jina-key
-JINA_BASE_URL=https://r.jina.ai
+JINA_BASE_URL=https://s.jina.ai
 
 # Embeddings (Opsional / Profile Embeddings)
 EMBEDDING_API_KEY=your-embedding-key
