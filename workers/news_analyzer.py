@@ -94,9 +94,8 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
                     err_str = str(ai_exc).lower()
                     print(f"[WARN] AI summarization failed for article {row['id']}: {ai_exc}", flush=True)
                     if "429" in err_str:
-                        print("[WARN] AI rate limited (429). Will backoff 30s...", flush=True)
-                        time.sleep(30)
-                        break
+                        print("[WARN] AI rate limited (429). Skipping AI for this article and continuing content fetch...", flush=True)
+                        continue
             except Exception as exc:
                 try:
                     conn.rollback()
