@@ -62,19 +62,41 @@ def run_once(limit: int, sleep_seconds: float = 0.3) -> dict:
                     conn.commit()
                     continue
 
-                summary = summarize_article(config, row["title"], fetched["content"])
+                # Simpan konten artikel dulu ke database agar fetch tidak sia-sia
                 save_article_content(
                     conn,
                     row["id"],
                     fetched["content"],
                     confidence=1.0,
                     published_at=parse_datetime_raw(fetched.get("published_time")),
-                    summary=summary or None,
+                    summary=None,
                 )
                 conn.commit()
                 result["contents_fetched"] += 1
-                result["summarized"] += 1 if summary else 0
-                print(f"ok {row['id']}: {summary[:90]}", flush=True)
+
+                # Coba buat summary AI, jika limit/gagal konten artikel tetap aman tersimpan
+                summary = None
+                try:
+                    summary = summarize_article(config, row["title"], fetched["content"])
+                    if summary:
+                        save_article_content(
+                            conn,
+                            row["id"],
+                            fetched["content"],
+                            confidence=1.0,
+                            published_at=parse_datetime_raw(fetched.get("published_time")),
+                            summary=summary,
+                        )
+                        conn.commit()
+                        result["summarized"] += 1
+                        print(f"ok {row['id']}: {summary[:90]}", flush=True)
+                except Exception as ai_exc:
+                    err_str = str(ai_exc).lower()
+                    print(f"[WARN] AI summarization failed for article {row['id']}: {ai_exc}", flush=True)
+                    if "429" in err_str:
+                        print("[WARN] AI rate limited (429). Will backoff 30s...", flush=True)
+                        time.sleep(30)
+                        break
             except Exception as exc:
                 try:
                     conn.rollback()
